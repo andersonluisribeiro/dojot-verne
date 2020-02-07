@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: pub-laten-kafka-prom
-        image: dojot/pub-laten-kafka-prom:{{ dojot_pub_kafka_prometheus_version }}
+        image: dojot/latency-pub-test-prometheus:{{ dojot_pub_kafka_prometheus_version }}
         env:
         - name: PROMETHEUS_PORT
           value: "3055"
