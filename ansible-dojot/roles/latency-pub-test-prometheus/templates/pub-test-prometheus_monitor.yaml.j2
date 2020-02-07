@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: latency-pub-test-prometheus
+  name: pub-laten-kafka-prom
   namespace: {{ dojot_namespace }}
 spec:
   endpoints:
@@ -9,4 +9,4 @@ spec:
     port: http
   selector:
     matchLabels:
-      app: latency-pub-test-prometheus
+      app: pub-laten-kafka-prom

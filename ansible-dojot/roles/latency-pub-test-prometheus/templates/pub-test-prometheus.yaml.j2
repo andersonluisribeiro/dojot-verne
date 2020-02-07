@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: latency-pub-test-prometheus
+  name: pub-laten-kafka-prom
   namespace: {{ dojot_namespace }}
 spec:
   replicas: {{ dojot_vernemq_mqtt_replicas_to_scale }}
   selector:
     matchLabels:
-      app: latency-pub-test-prometheus
+      app: pub-laten-kafka-prom
   template:
     metadata:
       labels:
-        app: latency-pub-test-prometheus
+        app: pub-laten-kafka-prom
     spec:
       containers:
-      - name: latency-pub-test-prometheus
-        image: dojot/latency-pub-test-prometheus:{{ dojot_pub_kafka_prometheus_version }}
+      - name: pub-laten-kafka-prom
+        image: dojot/pub-laten-kafka-prom:{{ dojot_pub_kafka_prometheus_version }}
         env:
         - name: PROMETHEUS_PORT
           value: "3055"
