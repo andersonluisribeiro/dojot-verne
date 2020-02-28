@@ -14,6 +14,7 @@
   tags: dojot-bootstrap
   roles:
     - role: dojot-basic
+    
 
 - hosts: dojot-k8s[0]
   any_errors_fatal: true
@@ -81,7 +82,7 @@
   any_errors_fatal: true
   tags: dojot-vernemq
   roles:
-    - role: vernemq
+    - role: vernemq-statefulset
 
 # Deploy RabbitMQ to the environment
 # TODO: Add possibility of using an external rabbit by setting config variables

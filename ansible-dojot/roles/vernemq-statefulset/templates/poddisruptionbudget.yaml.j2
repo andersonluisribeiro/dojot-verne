@@ -1,0 +1,10 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: vernemq-k8s
+  namespace: {{ dojot_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: vernemq-k8s
+  minAvailable: 1

@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vernemq-k8s
+  namespace: {{ dojot_namespace }}
+  labels:
+    app: vernemq-k8s
+spec:
+  serviceName: vernemq-k8s-headless
+  replicas: 2
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: vernemq-k8s
+  template:
+    metadata:
+      labels:
+        app: vernemq-k8s
+    spec:
+      serviceAccountName: vernemq-k8s
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: vernemq-k8s
+          image: dojot/vernemq-dojot:development
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 1883
+              name: mqtt
+            - containerPort: 8883
+              name: mqtts
+            - containerPort: 4369
+              name: epmd
+            - containerPort: 44053
+              name: vmq
+            - containerPort: 8080
+              name: ws
+            - containerPort: 8888
+              name: prometheus
+            # - containerPort: 9100-9109
+            #   name: other
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: DOCKER_VERNEMQ_DISCOVERY_KUBERNETES
+              value: "1"
+            - name: DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR
+              value: "app=vernemq-k8s"
+            - name: DOCKER_VERNEMQ_LISTENER__TCP__LOCALHOST
+              value: "127.0.0.1:1883"
+            - name: DOCKER_VERNEMQ_LISTENER__SSL__DEFAULT
+              value: "127.0.0.1:1888"
+            - name: DOCKER_VERNEMQ_ALLOW_REGISTER_DURING_NETSPLIT
+              value: "on"
+            - name: DOCKER_VERNEMQ_ALLOW_PUBLISH_DURING_NETSPLIT
+              value: "on"
+            - name: DOCKER_VERNEMQ_ALLOW_SUBSCRIBE_DURING_NETSPLIT
+              value: "on"
+            - name: DOCKER_VERNEMQ_ALLOW_UNSUBSCRIBE_DURING_NETSPLIT
+              value: "on"  
+            - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+              value: "on"
+            - name: DOCKER_VERNEMQ_ACCEPT_EULA
+              value: "yes"    
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: prometheus
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: prometheus
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          volumeMounts:
+            - name: logs
+              mountPath: /vernemq/log
+            - name: data
+              mountPath: /vernemq/data
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: "kubernetes.io/hostname"
+                labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values:
+                        - vernemq-k8s
+      securityContext:
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: data

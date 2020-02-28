@@ -1,0 +1,20 @@
+## This role is responsible for deploying verneMq for dojot
+
+- name: dojot - verneMQ Objects
+  k8s:
+    kubeconfig: "{{ dojot_kubeconfig_file_path | default(omit) }}"
+    state: present
+    definition: "{{ item }}"
+  register: result
+  until: result.failed == 0
+  retries: 30
+  delay: 10
+  loop:
+  - "{{ lookup('template', 'poddisruptionbudget.yaml.j2') | from_yaml }}"
+  - "{{ lookup('template', 'serviceaccount.yaml.j2') | from_yaml }}"
+  - "{{ lookup('template', 'role.yaml.j2') | from_yaml }}"
+  - "{{ lookup('template', 'rolebinding.yaml.j2') | from_yaml }}"
+  - "{{ lookup('template', 'headless-service.yaml.j2') | from_yaml }}"
+  - "{{ lookup('template', 'service.yaml.j2') | from_yaml }}"
+  - "{{ lookup('template', 'servicemonitor.yaml.j2') | from_yaml }}"
+  - "{{ lookup('template', 'statefulset.yaml.j2') | from_yaml }}"

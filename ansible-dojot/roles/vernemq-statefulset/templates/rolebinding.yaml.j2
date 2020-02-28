@@ -1,0 +1,13 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vernemq-k8s-role-binding
+  namespace: {{ dojot_namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: vernemq-k8s
+    namespace: {{ dojot_namespace }}
+roleRef:
+  kind: Role
+  name: vernemq-k8s-role
+  apiGroup: rbac.authorization.k8s.io
